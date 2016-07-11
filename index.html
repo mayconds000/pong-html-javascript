@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <style>
+    canvas{
+      position: relative;
+      left: 50%;
+      border: solid 1px black;
+      margin-left: -250px;
+      background-color: black;
+    }
+  </style>
+  <title>Document</title>
+</head>
+<body>
+  <canvas id="mycanvas" width="600" height="500">O seu browser não suporta este elemento</canvas>
+  <script>
+    var canvas = document.getElementById('mycanvas');
+    var ctx = canvas.getContext('2d');
+
+    //cor do desenho dentro do canvas
+    var keys = [];
+    var ball = {
+     x: canvas.width / 2 - 10,
+     y: canvas.height / 2 - 10,
+     height: 25,
+     width: 25,
+     dirx: -1,
+     diry: 1,
+     mod: 0,
+     speed: 1
+    };
+
+    var left = {
+      x: 10,
+      y: canvas.height / 2 - 60,
+      height: 120,
+      width: 20,
+      score: 0,
+      speed: 15
+    };
+
+    var right = {
+      x: 570,
+      y: canvas.height / 2 - 60,
+      height: 120,
+      width: 20,
+      score: 0,
+      speed: 15
+    };
+
+  document.addEventListener("keydown", function(e){
+    keys[e.keyCode] = true;
+  });
+
+  document.addEventListener("keyup",  function(e){
+    delete keys[e.keyCode];
+  });
+
+    function moveBall() {
+      if(ball.y + ball.height >= left.y && ball.y <= left.y + left.height
+       && ball.x <= left.x + left.width){
+         ball.dirx = 1;
+         ball.mod += 0.2;
+       }else if(ball.y + ball.height >= right.y && ball.y <= right.y + right.height
+       && ball.x + ball.width >= right.x) {
+         ball.dirx = -1;
+         ball.mod += 0.2;
+       }
+
+      if(ball.y <= 0)
+        ball.diry = 1;
+      else if(ball.y + ball.height >= canvas.height)
+        ball.diry = -1;
+
+      ball.x += (ball.speed + ball.mod) * ball.dirx;
+      ball.y += (ball.speed + ball.mod) * ball.diry;
+
+      if(ball.x < left.x + left.width -15)
+        newGame("player 2");
+      else if(ball.x > right.x + right.width +15)
+        newGame("player 1")
+    };
+
+    function newGame(winner){
+      if(winner === "player 1")
+        ++left.score;
+      else
+        ++right.score;
+
+      left.y = canvas.height/2 - left.height /2;
+      right.y = left.y;
+      ball.y = canvas.height / 2 - ball.height / 2;
+      ball.x = canvas.width / 2 - ball.width / 2;
+      ball.mod = 0;
+    };
+
+    function move(){
+      if(87 in keys && left.y > 0)
+        left.y -= left.speed;
+      else if(83 in keys && left.y + left.height < canvas.height)
+        left.y += left.speed;
+
+      if(38 in keys && right.y > 0)
+        right.y -= right.speed;
+      else if(40 in keys && right.y + right.height < canvas.height)
+        right.y += right.speed;
+    };
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      move();
+      moveBall();
+
+      ctx.fillStyle = "white";
+      ctx.fillRect(left.x, left.y, left.width, left.height);
+      ctx.fillRect(right.x, right.y, right.width, right.height);
+      ctx.fillRect(ball.x, ball.y, ball.width, ball.height);
+
+      ctx.font = "20px Arial";
+      ctx.fillText("Player 1: " + left.score, 40, 20);
+      ctx.fillText("Player 2: " + right.score, canvas.width -140, 20);
+    };
+
+    setInterval(function(){
+      draw()
+    }, 15);
+
+  </script>
+</body>
+</html>
